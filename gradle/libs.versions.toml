@@ -1,0 +1,80 @@
+[versions]
+activity-compose = "1.8.2"
+androidx-junit = "1.1.5"
+core-ktx = "1.12.0"
+espresso-core = "3.5.1"
+junit = "4.13.2"
+lifecycle-runtime-ktx = "2.7.0"
+compose-bom = "2023.08.00"
+koin = "3.5.0"
+compose-navigation = "2.7.7"
+camera-x = "1.3.1"
+
+# plugins
+ksp = "1.9.21-1.0.16"
+
+[libraries]
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
+androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "core-ktx" }
+androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso-core" }
+androidx-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-junit" }
+androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle-runtime-ktx" }
+junit = { module = "junit:junit", version.ref = "junit" }
+
+# compose
+androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
+androidx-compose-ui = { module = "androidx.compose.ui:ui" }
+androidx-compose-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
+androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
+
+# compose-test
+androidx-compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
+androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
+
+# Navigation
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "compose-navigation" }
+
+# google-ml-kit
+google-mlkit-face-detection = { module = "com.google.mlkit:face-detection", version = "16.1.6" }
+
+# Tensorflow
+org-tensorflow-lite-task-vision = { module = "org.tensorflow:tensorflow-lite-task-vision", version = "0.4.0" }
+org-tensorflow-lite-gpu-delegate-plugin = { module = "org.tensorflow:tensorflow-lite-gpu-delegate-plugin", version = "0.4.0" }
+org-tensorflow-lite-gpu = { module = "org.tensorflow:tensorflow-lite-gpu", version = "2.9.0" }
+org-tensorflow-lite-support = { module = "org.tensorflow:tensorflow-lite-support", version = "0.1.0" }
+
+# CameraX
+androidx-camera-core = { module = "androidx.camera:camera-core", version.ref = "camera-x" }
+androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "camera-x" }
+androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "camera-x" }
+androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "camera-x" }
+androidx-camera-extensions = { module = "androidx.camera:camera-extensions", version.ref = "camera-x" }
+
+# Koin
+io-insert-koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
+io-insert-koin-androidx-navigation = { module = "io.insert-koin:koin-androidx-navigation", version.ref = "koin" }
+io-insert-koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
+
+# Serialization
+retrofit2-kotlinx-serialization = { module = "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter", version = "1.0.0"}
+kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.6.0"}
+
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version = "1.0.0" }
+androidx-datastore = { module = "androidx.datastore:datastore", version = "1.0.0" }
+
+[bundles]
+compose-bom = ["androidx-compose-ui", "androidx-compose-ui-graphics", "androidx-compose-ui-tooling-preview", "androidx-compose-material3"]
+koin = ["io-insert-koin-androidx-compose", "io-insert-koin-androidx-navigation", "io-insert-koin-android"]
+camera-x = ["androidx-camera-core", "androidx-camera-camera2", "androidx-camera-lifecycle", "androidx-camera-view", "androidx-camera-extensions"]
+tensorflow = ["org-tensorflow-lite-gpu-delegate-plugin", "org-tensorflow-lite-gpu", "org-tensorflow-lite-support"]
+
+[plugins]
+android-application = { id = "com.android.application", version = "8.2.1" }
+jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version = "1.9.0" }
+kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version = "1.9.0"}
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+
+
+
