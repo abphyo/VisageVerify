@@ -28,8 +28,8 @@ import androidx.navigation.compose.rememberNavController
 import com.biho.visageverify.presentation.navigation.MainNavGraph
 import com.biho.visageverify.presentation.composables.CameraPermissionTextProvider
 import com.biho.visageverify.presentation.composables.PermissionDialog
-import com.biho.visageverify.presentation.ui.LocalApplicationContext
-import com.biho.visageverify.presentation.ui.LocalPermissionChannel
+import com.biho.visageverify.presentation.utils.LocalApplicationContext
+import com.biho.visageverify.presentation.utils.LocalPermissionChannel
 import com.biho.visageverify.ui.theme.VisageVerifyTheme
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach

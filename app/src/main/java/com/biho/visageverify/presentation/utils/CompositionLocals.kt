@@ -1,4 +1,4 @@
-package com.biho.visageverify.presentation.ui
+package com.biho.visageverify.presentation.utils
 
 import android.content.Context
 import androidx.compose.runtime.compositionLocalOf

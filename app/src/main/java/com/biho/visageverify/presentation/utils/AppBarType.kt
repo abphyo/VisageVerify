@@ -1,4 +1,4 @@
-package com.biho.visageverify.presentation.ui
+package com.biho.visageverify.presentation.utils
 
 enum class AppBarType {
     Normal,
