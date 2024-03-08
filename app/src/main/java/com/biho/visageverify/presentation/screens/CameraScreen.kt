@@ -10,10 +10,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import com.biho.visageverify.presentation.composables.DrawFaceOverLay
@@ -29,10 +28,11 @@ fun CameraScreen(
     onNavigateBack: () -> Unit,
     controller: LifecycleCameraController
 ) {
+    val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    var cameraWidth by remember { mutableIntStateOf(0) }
-    var cameraHeight by remember { mutableIntStateOf(0) }
+    val screenWidth by remember { mutableIntStateOf(context.resources.displayMetrics.widthPixels) }
+    val screenHeight by remember { mutableIntStateOf(context.resources.displayMetrics.heightPixels) }
 
     Scaffold(
         topBar = {
@@ -45,10 +45,6 @@ fun CameraScreen(
     ) { paddingValues ->
         Box(modifier = Modifier
             .fillMaxSize()
-            .onSizeChanged { size ->
-                cameraWidth = size.width
-                cameraHeight = size.height
-            }
             .padding(paddingValues),
             contentAlignment = Alignment.BottomCenter
         ) {
@@ -61,7 +57,7 @@ fun CameraScreen(
                     }
                 }
             )
-            DrawFaceOverLay(faces = faces, imageHeight, imageWidth, cameraWidth, cameraHeight)
+            DrawFaceOverLay(faces = faces, imageHeight, imageWidth, screenWidth, screenHeight)
         }
     }
 }

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.toComposeRect
 import com.biho.visageverify.presentation.utils.adjustPoint
@@ -20,7 +21,7 @@ fun DrawFaceOverLay(faces: List<Face>, imageWidth: Int, imageHeight: Int, screen
             val topLeft = adjustPoint(PointF(boundingBox.topLeft.x, boundingBox.topLeft.y), imageWidth, imageHeight, screenWidth, screenHeight)
             val size = adjustSize(boundingBox.size, imageWidth, imageHeight, screenWidth, screenHeight)
             drawRect(
-                color = androidx.compose.ui.graphics.Color.Yellow,
+                color = Color.Yellow,
                 size = size,
                 topLeft = Offset(topLeft.x, topLeft.y),
                 style = Stroke(width = 5f)
