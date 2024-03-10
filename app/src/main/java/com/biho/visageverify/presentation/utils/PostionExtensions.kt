@@ -2,7 +2,9 @@ package com.biho.visageverify.presentation.utils
 
 import android.graphics.Bitmap
 import android.graphics.PointF
+import android.graphics.Rect
 import androidx.compose.ui.geometry.Size
+import com.google.mlkit.vision.face.Face
 
 fun adjustPoint(point: PointF, imageWidth: Int, imageHeight: Int, screenWidth: Int, screenHeight: Int): PointF {
     val x = point.x / imageWidth * screenWidth
@@ -23,4 +25,28 @@ fun Bitmap.centerCrop(desiredWidth: Int, desiredHeight: Int): Bitmap {
         throw IllegalArgumentException("Invalid arguments for center cropping")
     }
     return Bitmap.createBitmap(this, xStart, yStart, desiredWidth, desiredHeight)
+}
+
+fun Bitmap.cropBitmapRec(boundingBox: Rect): Bitmap {
+    // Ensure the bounding box coordinates are within the bounds of the bitmap
+    val left = boundingBox.left.coerceIn(0, width - 1)
+    val top = boundingBox.top.coerceIn(0, height - 1)
+    val right = boundingBox.right.coerceIn(0, width - 1)
+    val bottom = boundingBox.bottom.coerceIn(0, height - 1)
+
+    // Calculate the width and height of the cropped region
+    val width = right - left
+    val height = bottom - top
+
+    // Create a new bitmap representing the cropped region
+    return Bitmap.createBitmap(this, left, top, width, height)
+}
+
+fun List<Face>.biggestRect(): Rect {
+    // Get only biggest rect from detected faces in frame
+    return map {
+        it.boundingBox
+    }.maxBy {
+        it.width() * it.height()
+    }
 }

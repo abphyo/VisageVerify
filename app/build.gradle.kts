@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.kotlinx.serialization)
+    alias(libs.plugins.io.realm)
 }
 
 android {
@@ -92,4 +93,6 @@ dependencies {
     // camera-X
     implementation(libs.bundles.camera.x)
 
+    // realm
+    implementation(libs.io.realm)
 }

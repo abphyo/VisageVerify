@@ -1,4 +1,4 @@
-package com.biho.visageverify.data.model
+package com.biho.visageverify.data.repo
 
 import android.graphics.Bitmap
 

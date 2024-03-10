@@ -2,6 +2,7 @@ package com.biho.visageverify.presentation.navigation
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
@@ -13,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -21,12 +23,14 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.biho.visageverify.domain.usecases.FaceDetectionUseCase
 import com.biho.visageverify.presentation.CameraImageAnalyzer
-import com.biho.visageverify.presentation.DetectViewModel
+import com.biho.visageverify.presentation.screens.DetectViewModel
 import com.biho.visageverify.presentation.composables.sharedViewModel
-import com.biho.visageverify.presentation.screens.CameraScreen
+import com.biho.visageverify.presentation.screens.DetectionScreen
 import com.biho.visageverify.presentation.utils.LocalApplicationContext
 import com.google.mlkit.vision.face.Face
+import org.koin.compose.koinInject
 
 fun NavGraphBuilder.detectionRoute(navController: NavHostController) {
 
@@ -46,7 +50,12 @@ fun NavGraphBuilder.detectionRoute(navController: NavHostController) {
 
             val sharedDetectViewModel =
                 entry.sharedViewModel<DetectViewModel>(navController = navController)
-            val detectFacesPerFrame = sharedDetectViewModel.detectFacesPerFrame
+
+            val detector = koinInject<FaceDetectionUseCase>()
+            val detectFacesPerFrame = detector::detectFacePerFrame
+            val originalFrame = remember {
+                mutableStateOf(Bitmap.createBitmap(0, 0, Bitmap.Config.ARGB_8888))
+            }
 
             val faces = remember { mutableStateListOf<Face>() }
 
@@ -61,9 +70,10 @@ fun NavGraphBuilder.detectionRoute(navController: NavHostController) {
                         ContextCompat.getMainExecutor(applicationContext),
                         CameraImageAnalyzer(
                             detectFacePerFrame = detectFacesPerFrame
-                        ) { results, width, height ->
+                        ) { results, frame, width, height ->
                             faces.clear()
                             faces.addAll(results)
+                            originalFrame.value = frame
                             imageWidth.intValue = width
                             imageHeight.intValue = height
                         }
@@ -80,7 +90,10 @@ fun NavGraphBuilder.detectionRoute(navController: NavHostController) {
                     onNavigateBackOnPermissionDenied()
             }
 
-            CameraScreen(
+            DetectionScreen(
+                screenState = sharedDetectViewModel.screenState.value,
+                loadingState = sharedDetectViewModel.loadingState.value,
+                croppedFace = sharedDetectViewModel.croppedBitmap.value,
                 faces = faces,
                 imageHeight = imageHeight.intValue,
                 imageWidth = imageWidth.intValue,
@@ -88,13 +101,20 @@ fun NavGraphBuilder.detectionRoute(navController: NavHostController) {
                 onNavigateBack = {
                     navController.navigateUp()
                 },
+                onCropImage = { rect ->
+                    sharedDetectViewModel.cropFaceFromFrame(originalFrame.value, rect)
+                },
+                onRememberImage = { name ->
+                    sharedDetectViewModel.rememberFace(name = name)
+                },
                 controller = cameraController
             )
         }
 
         composable(route = DetectRoute.Remember.route) { entry ->
 
-            val sharedDetectViewModel = entry.sharedViewModel<DetectViewModel>(navController = navController)
+            val sharedDetectViewModel =
+                entry.sharedViewModel<DetectViewModel>(navController = navController)
             val scrollState = rememberScrollState()
 
             Column(

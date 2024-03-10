@@ -1,6 +1,6 @@
 package com.biho.visageverify
 
-import com.biho.visageverify.presentation.DetectViewModel
+import com.biho.visageverify.presentation.screens.DetectViewModel
 import kotlinx.coroutines.CompletableJob
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

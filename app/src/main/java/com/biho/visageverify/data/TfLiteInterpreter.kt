@@ -2,9 +2,9 @@ package com.biho.visageverify.data
 
 import android.content.Context
 import android.graphics.Bitmap
+import com.biho.visageverify.data.repo.PersonInterpreter
 import com.biho.visageverify.data.utils.Processor
 import com.biho.visageverify.data.utils.TfLite
-import com.biho.visageverify.data.model.PersonInterpreter
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.gpu.CompatibilityList

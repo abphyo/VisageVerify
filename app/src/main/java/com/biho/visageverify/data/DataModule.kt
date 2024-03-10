@@ -3,10 +3,15 @@ package com.biho.visageverify.data
 import android.content.Context
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.dataStoreFile
+import com.biho.visageverify.data.realm.RealmFloatArray
+import com.biho.visageverify.data.realm.RealmPerson
+import com.biho.visageverify.data.realm.RealmRepoImpl
 import com.biho.visageverify.data.utils.TfLitePrefSerializer
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetector
 import com.google.mlkit.vision.face.FaceDetectorOptions
+import io.realm.kotlin.Realm
+import io.realm.kotlin.RealmConfiguration
 import kotlinx.coroutines.CoroutineScope
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
@@ -20,7 +25,6 @@ fun dataModule() = module {
             scope = get<CoroutineScope>()
         )
     }
-    singleOf(::TfLiteInterpreter)
     single<FaceDetector> {
         val options = FaceDetectorOptions.Builder()
             .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
@@ -30,4 +34,16 @@ fun dataModule() = module {
 
         FaceDetection.getClient(options)
     }
+    single {
+        Realm.open(
+            configuration = RealmConfiguration.create(
+                schema = setOf(
+                    RealmPerson::class,
+                    RealmFloatArray::class
+                )
+            )
+        )
+    }
+    singleOf(::TfLiteInterpreter)
+    singleOf(::RealmRepoImpl)
 }
