@@ -35,10 +35,9 @@ class ValidatePersonUseCase(
     suspend operator fun invoke(croppedBitmap: Bitmap): String? {
         val likeness =
             calculateLikenessUseCase.interpretBitmap(bitmap = croppedBitmap) ?: emptyArray()
-        return getPersonsUseCase.invoke().value.minOfOrNull { person ->
+        return getPersonsUseCase.invoke().value.maxByOrNull { person ->
             cosineSim(x1 = likeness.flatten(), x2 = person.likeness.flatten())
-            person.name
-        }
+        }?.name
     }
 
 }

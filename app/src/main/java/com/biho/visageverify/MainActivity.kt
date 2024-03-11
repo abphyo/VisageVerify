@@ -30,22 +30,28 @@ import com.biho.visageverify.presentation.composables.CameraPermissionTextProvid
 import com.biho.visageverify.presentation.composables.PermissionDialog
 import com.biho.visageverify.presentation.utils.LocalApplicationContext
 import com.biho.visageverify.presentation.utils.LocalPermissionChannel
+import com.biho.visageverify.presentation.utils.LocalPermissionGrantedChannel
 import com.biho.visageverify.ui.theme.VisageVerifyTheme
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.KoinContext
+import java.util.UUID
 
 val PERMISSIONS_REQUIRED = arrayOf(Manifest.permission.CAMERA)
 
 class MainActivity : ComponentActivity() {
 
     private val permissionChannel = Channel<String>()
-
+    private val permissionGrantedChannel = Channel<String>()
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()
         ) { isGranted: Boolean ->
             if (isGranted) {
+                lifecycleScope.launch {
+                    permissionGrantedChannel.send(UUID.randomUUID().toString())
+                }
                 Toast.makeText(this, "Permission request granted", Toast.LENGTH_LONG).show()
             } else {
                 Toast.makeText(this, "Permission request denied", Toast.LENGTH_LONG).show()
@@ -64,12 +70,11 @@ class MainActivity : ComponentActivity() {
                     CompositionLocalProvider(
                         values = arrayOf(
                             LocalPermissionChannel provides permissionChannel,
+                            LocalPermissionGrantedChannel provides permissionGrantedChannel,
                             LocalApplicationContext provides applicationContext
                         )
                     ) {
                         val viewModel = koinViewModel<MainViewModel>()
-                        val context = LocalContext.current
-                        val lifecycleScope = LocalLifecycleOwner.current.lifecycleScope
 
                         // A surface container using the 'background' color from the theme
                         Surface(

@@ -26,6 +26,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.biho.visageverify.presentation.utils.LocalPermissionGrantedChannel
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.delay
 
 @Composable
@@ -39,8 +41,9 @@ fun AnimatedSplashScreen(popSplashScreen: () -> Unit) {
         ),
         label = "splash screen animation"
     )
+    val granted = LocalPermissionGrantedChannel.current
 
-    LaunchedEffect(key1 = true) {
+    LaunchedEffect(key1 = Unit) {
         startAnimation = true
         delay(4000)
         when (PackageManager.PERMISSION_GRANTED) {
@@ -48,8 +51,10 @@ fun AnimatedSplashScreen(popSplashScreen: () -> Unit) {
                 context,
                 Manifest.permission.CAMERA
             ) -> popSplashScreen()
-
             else -> { }
+        }
+        granted.consumeEach {
+            popSplashScreen()
         }
     }
     Splash(alpha = alphaAnim.value)
