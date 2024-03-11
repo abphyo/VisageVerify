@@ -1,9 +1,6 @@
 package com.biho.visageverify.domain.usecases
 
 import android.graphics.Bitmap
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.flow
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -34,19 +31,14 @@ class ValidatePersonUseCase(
         }
         return dotProduct / (sqrt(normA) * sqrt(normB))
     }
-    suspend operator fun invoke(croppedBitmap: Bitmap): Flow<String?> {
-        return flow {
-            calculateLikenessUseCase.interpretBitmap(bitmap = croppedBitmap)
-                .onSuccess { likeness ->
-                    getPersonsUseCase.invoke().collectLatest { list ->
-                        list.minOfOrNull { person ->
-                            cosineSim(x1 = likeness.flatten(), x2 = person.likeness.flatten())
-                            person.name
-                        }.also {
-                            emit(it)
-                        }
-                    }
-                }
+
+    suspend operator fun invoke(croppedBitmap: Bitmap): String? {
+        val likeness =
+            calculateLikenessUseCase.interpretBitmap(bitmap = croppedBitmap) ?: emptyArray()
+        return getPersonsUseCase.invoke().value.minOfOrNull { person ->
+            cosineSim(x1 = likeness.flatten(), x2 = person.likeness.flatten())
+            person.name
         }
     }
+
 }

@@ -9,7 +9,7 @@ import com.biho.visageverify.domain.usecases.SavePersonUseCase
 import com.biho.visageverify.presentation.utils.cropBitmapRec
 import kotlinx.coroutines.launch
 
-class DetectViewModel(
+class IntroduceViewModel(
     private val savePersonUseCase: SavePersonUseCase
 ) : ViewModel() {
     var screenState = mutableStateOf<DetectScreenState>(DetectScreenState.Idle)
@@ -19,7 +19,7 @@ class DetectViewModel(
         private set
 
     var croppedBitmap =
-        mutableStateOf(Bitmap.createBitmap(0, 0, Bitmap.Config.ARGB_8888))
+        mutableStateOf(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888))
         private set
 
     // get and feedback final cropped image before tfLite
@@ -37,11 +37,13 @@ class DetectViewModel(
                 croppedBitmap = croppedBitmap.value,
                 name = name
             ).onSuccess {
-                screenState.value = DetectScreenState.Success
                 loadingState.value = LoadingState.Idle
+                screenState.value = DetectScreenState.Success
+                println("saved to Realm")
             }.onFailure {
                 screenState.value = DetectScreenState.Error(message = it.message!!)
                 loadingState.value = LoadingState.Idle
+                println("realm failed: ${it.message}")
             }
         }
     }

@@ -9,21 +9,16 @@ class SavePersonUseCase(
     private val calculateLikenessUseCase: CalculateLikenessUseCase
 ) {
     suspend operator fun invoke(croppedBitmap: Bitmap, name: String): Result<Unit> {
-        var likeness: Array<FloatArray>? = null
-        var throwable = Throwable()
-        calculateLikenessUseCase.interpretBitmap(croppedBitmap).onSuccess {
-            likeness = it
-        }.onFailure {
-            throwable = it
-        }
+        val likeness = calculateLikenessUseCase.interpretBitmap(croppedBitmap)
         return when {
             likeness != null -> realmRepoImpl.addPerson(
                 Person(
                     name = name,
-                    likeness = likeness!!
+                    picture = croppedBitmap,
+                    likeness = likeness
                 )
             )
-            else -> Result.failure(throwable)
+            else -> Result.failure(Throwable("likeness calculation failed"))
         }
     }
 }

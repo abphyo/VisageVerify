@@ -1,28 +1,55 @@
 package com.biho.visageverify.presentation.screens
 
+import androidx.camera.core.Preview
+import androidx.camera.view.CameraController
+import androidx.camera.view.LifecycleCameraController
+import androidx.camera.view.PreviewView
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import com.biho.visageverify.presentation.composables.DrawFaceOverLay
+import com.biho.visageverify.presentation.composables.DrawNameOverLay
 import com.biho.visageverify.presentation.navigation.BackOnlyTopAppBar
+import com.biho.visageverify.presentation.utils.biggestRect
+import com.google.mlkit.vision.face.Face
 
 @Composable
 fun HomeScreen(
     isRouteFirstEntry: Boolean = true,
-    onRegisterClick: () -> Unit,
-    onVerifyClick: () -> Unit,
-    onImportClick: () -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateIntroduce: () -> Unit,
+    onNavigateBack: () -> Unit,
+    persons: List<Pair<String?, Face>>,
+    imageWidth: Int,
+    imageHeight: Int,
+    cameraController: LifecycleCameraController
 ) {
+    val lifecycle = LocalLifecycleOwner.current
+
     Scaffold(
         topBar = {
             BackOnlyTopAppBar(isRouteFirstEntry = isRouteFirstEntry, onNavigateBack = onNavigateBack, text = "Hello")
@@ -32,19 +59,34 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
-            contentAlignment = Alignment.Center,
+            contentAlignment = Alignment.BottomCenter,
         ) {
-            Column {
-                Button(onClick = onRegisterClick) {
-                    Text(text = "Introduce me someone")
+            AndroidView(
+                modifier = Modifier.fillMaxSize(),
+                factory = {
+                    PreviewView(it).apply {
+                        controller = cameraController
+                        cameraController.bindToLifecycle(lifecycle)
+                    }
                 }
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = onVerifyClick) {
-                    Text(text = "Take me around")
+            )
+            DrawNameOverLay(pairs = persons, imageWidth = imageWidth, imageHeight = imageHeight)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(32.dp)
+            ) {
+                IconButton(onClick = { /*TODO*/ }) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = null)
                 }
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = onImportClick) {
-                    Text(text = "let me see your gallery")
+                Button(
+                    onClick = { onNavigateIntroduce() },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = ShapeDefaults.Medium
+                ) {
+                    Text(text = "Introduce someone")
                 }
             }
         }

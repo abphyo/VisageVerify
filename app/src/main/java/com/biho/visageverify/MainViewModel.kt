@@ -12,8 +12,6 @@ class MainViewModel(
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
-    private val visiblePermissionDialogQueue = mutableStateListOf<String>()
-
     var permissionDialogState by savedStateHandle.saveable {
         mutableStateOf(false)
     }
@@ -25,14 +23,4 @@ class MainViewModel(
     fun dismissDialog() {
         permissionDialogState = false
     }
-
-    fun onPermissionResult(
-        permission: String,
-        isGranted: Boolean
-    ) {
-        if(!isGranted && !visiblePermissionDialogQueue.contains(permission)) {
-            visiblePermissionDialogQueue.add(permission)
-        }
-    }
-
 }

@@ -8,6 +8,7 @@ import com.biho.visageverify.data.utils.TfLite
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.gpu.CompatibilityList
+import org.tensorflow.lite.gpu.GpuDelegate
 import org.tensorflow.lite.support.common.FileUtil
 import org.tensorflow.lite.support.common.ops.CastOp
 import org.tensorflow.lite.support.image.ImageProcessor
@@ -20,13 +21,7 @@ class TfLiteInterpreter(
 
     private var interpreter: Interpreter? = null
     private var tfLiteModel: TfLite = TfLite.FaceNet
-    init {
-        setUpInterpreter(
-            2,
-            Processor.DELEGATE_CPU,
-            model = TfLite.FaceNet
-        )
-    }
+
     fun setUpInterpreter(
         threadCount: Int,
         processorDelegate: Processor,
@@ -42,15 +37,12 @@ class TfLiteInterpreter(
         when (processorDelegate) {
             Processor.DELEGATE_CPU -> {
                 // Default
-                baseOptions.apply {
-                    setUseNNAPI(false)
-                }
             }
             Processor.DELEGATE_GPU -> {
                 if (CompatibilityList().isDelegateSupportedOnThisDevice) {
                     // Gpu doesn't support for Interpreter
                     baseOptions.apply {
-                        setUseNNAPI(false)
+                        addDelegate(GpuDelegate())
                     }
                 } else {
                     throw IllegalStateException("GPU is not supported on this device")
@@ -63,9 +55,10 @@ class TfLiteInterpreter(
             }
         }
 
-        try {
+        return try {
             interpreter = Interpreter(FileUtil.loadMappedFile(context, tfLiteModel.fileName), baseOptions)
         } catch (e: Exception) {
+            println("interpreter exception: ${e.printStackTrace()}")
             e.printStackTrace()
         }
 
@@ -83,8 +76,8 @@ class TfLiteInterpreter(
         }
 
         val embeddingDim = when(tfLiteModel) {
-            TfLite.FaceNet -> 128
-            TfLite.FaceNetHiroki -> 128
+            TfLite.FaceNet -> 512
+            TfLite.FaceNetHiroki -> 512
             TfLite.MobileFaceNet -> 192
         }
 

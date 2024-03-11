@@ -17,14 +17,12 @@ class CalculateLikenessUseCase(
     private val scope: CoroutineScope,
     private val tfLiteInterpreter: TfLiteInterpreter
 ) {
-    fun interpretBitmap(bitmap: Bitmap): Result<Array<FloatArray>> {
+    fun interpretBitmap(bitmap: Bitmap): Array<FloatArray>? {
         val tfLitePrefs = tfLiteStore.data
             .stateIn(
                 scope = scope,
                 started = SharingStarted.Eagerly,
-                initialValue = runBlocking {
-                    tfLiteStore.data.first()
-                }
+                initialValue = TfLitePreferences()
             ).value
 
         tfLiteInterpreter.setUpInterpreter(
@@ -33,14 +31,10 @@ class CalculateLikenessUseCase(
             model = tfLitePrefs.model
         )
         return try {
-            val euclidean = tfLiteInterpreter.interpret(bitmap = bitmap)
-            Result.success(euclidean)
+            tfLiteInterpreter.interpret(bitmap = bitmap)
         } catch (e: Exception) {
-            Result.failure(
-                Throwable(
-                    e.message ?: "image interpretation failed: unknown error"
-                )
-            )
+            e.printStackTrace()
+            null
         }
     }
 }

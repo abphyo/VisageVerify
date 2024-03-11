@@ -1,6 +1,7 @@
 package com.biho.visageverify
 
-import com.biho.visageverify.presentation.screens.DetectViewModel
+import com.biho.visageverify.presentation.screens.HomeViewModel
+import com.biho.visageverify.presentation.screens.IntroduceViewModel
 import kotlinx.coroutines.CompletableJob
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -12,5 +13,6 @@ fun appModule() = module {
     single { SupervisorJob() }
     factory { CoroutineScope(context = Dispatchers.IO + get<CompletableJob>()) }
     viewModelOf(::MainViewModel)
-    viewModelOf(::DetectViewModel)
+    viewModelOf(::IntroduceViewModel)
+    viewModelOf(::HomeViewModel)
 }

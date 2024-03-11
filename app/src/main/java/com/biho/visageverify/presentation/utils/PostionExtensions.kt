@@ -1,6 +1,7 @@
 package com.biho.visageverify.presentation.utils
 
 import android.graphics.Bitmap
+import android.graphics.Matrix
 import android.graphics.PointF
 import android.graphics.Rect
 import androidx.compose.ui.geometry.Size
@@ -49,4 +50,10 @@ fun List<Face>.biggestRect(): Rect {
     }.maxBy {
         it.width() * it.height()
     }
+}
+
+fun Bitmap.rotateBitmap(rotationDegrees: Float): Bitmap {
+    val matrix = Matrix()
+    matrix.postRotate(rotationDegrees)
+    return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
 }

@@ -1,7 +1,10 @@
 package com.biho.visageverify.data.model
 
+import android.graphics.Bitmap
+
 data class Person(
     val name: String,
+    val picture: Bitmap,
     val likeness: Array<FloatArray>
 ) {
     override fun equals(other: Any?): Boolean {

@@ -2,8 +2,16 @@ package com.biho.visageverify.presentation.navigation
 
 import android.Manifest
 import android.content.pm.PackageManager
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.view.CameraController
+import androidx.camera.view.LifecycleCameraController
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.core.content.ContextCompat
@@ -11,13 +19,19 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.biho.visageverify.domain.usecases.FaceDetectionUseCase
+import com.biho.visageverify.presentation.CameraImageAnalyzer
+import com.biho.visageverify.presentation.screens.AnimatedSplashScreen
 import com.biho.visageverify.presentation.screens.HomeScreen
+import com.biho.visageverify.presentation.screens.HomeViewModel
+import com.biho.visageverify.presentation.utils.LocalApplicationContext
 import com.biho.visageverify.presentation.utils.LocalPermissionChannel
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import java.util.UUID
 
 @Composable
@@ -26,21 +40,29 @@ fun MainNavGraph(navController: NavHostController) {
     val permissionChannel = LocalPermissionChannel.current
     val lifecycleScope = LocalLifecycleOwner.current.lifecycleScope
 
-    NavHost(navController = navController, startDestination = MainRoute.Home.route) {
+    NavHost(navController = navController, startDestination = MainRoute.Splash.route) {
 
         val onNavigateBack = {
             if (navController.currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED)
                 navController.navigateUp()
         }
 
+        composable(route = MainRoute.Splash.route) {
+            val onNavigateHomeScreen = {
+                navController.popBackStack()
+                navController.navigate(MainRoute.Home.route)
+            }
+            AnimatedSplashScreen(popSplashScreen = onNavigateHomeScreen)
+        }
+
         composable(route = MainRoute.Home.route) { entry ->
 
-            val onRegisterClick = {
+            val onNavigateToIntroduce = {
                 when (PackageManager.PERMISSION_GRANTED) {
                     ContextCompat.checkSelfPermission(
                         context,
                         Manifest.permission.CAMERA
-                    ) -> navController.navigate(MainRoute.Detect.route)
+                    ) -> navController.navigate(MainRoute.Introduce.route)
 
                     else -> lifecycleScope.launch {
                         permissionChannel.send(UUID.randomUUID().toString())
@@ -48,43 +70,64 @@ fun MainNavGraph(navController: NavHostController) {
                 }
                 Unit
             }
-            val onVerifyClick = {
-                when (PackageManager.PERMISSION_GRANTED) {
-                    ContextCompat.checkSelfPermission(
-                        context,
-                        Manifest.permission.CAMERA
-                    ) -> navController.navigate(MainRoute.Verify.route)
 
-                    else -> lifecycleScope.launch {
-                        permissionChannel.send(UUID.randomUUID().toString())
-                    }
+            val onNavigateBackOnPermissionDenied = {
+                navController.popBackStack()
+                navController.navigate(MainRoute.Splash.route)
+            }
+
+            val applicationContext = LocalApplicationContext.current
+
+            val detector = koinInject<FaceDetectionUseCase>()
+            val homeViewModel = koinViewModel<HomeViewModel>()
+            val detectFacesPerFrame = detector::detectFacePerFrame
+
+            val persons by homeViewModel.persons.collectAsState()
+
+            val imageWidth = remember { mutableIntStateOf(0) }
+            val imageHeight = remember { mutableIntStateOf(0) }
+
+            LaunchedEffect(key1 = LocalLifecycleOwner.current.lifecycle.currentState) {
+                if (ContextCompat.checkSelfPermission(
+                        applicationContext,
+                        Manifest.permission.CAMERA
+                    ) != PackageManager.PERMISSION_GRANTED
+                )
+                    onNavigateBackOnPermissionDenied()
+            }
+
+            val cameraController = remember {
+                LifecycleCameraController(applicationContext).apply {
+                    setEnabledUseCases(CameraController.IMAGE_ANALYSIS)
+                    imageAnalysisBackpressureStrategy = ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST
+                    setImageAnalysisAnalyzer(
+                        ContextCompat.getMainExecutor(applicationContext),
+                        CameraImageAnalyzer(
+                            detectFacePerFrame = detectFacesPerFrame
+                        ) { results, frame, width, height ->
+                            homeViewModel.validateFaces(frame = frame, faces = results)
+                            imageWidth.intValue = width
+                            imageHeight.intValue = height
+                        }
+                    )
                 }
-                Unit
             }
-            val onImportClick = {
-                // not yet
-            }
+
             HomeScreen(
                 isRouteFirstEntry = entry.isRouteFirstEntry(),
-                onRegisterClick = onRegisterClick,
-                onVerifyClick = onVerifyClick,
-                onImportClick = onImportClick,
-                onNavigateBack = onNavigateBack
+                onNavigateIntroduce = onNavigateToIntroduce,
+                onNavigateBack = onNavigateBack,
+                persons = persons,
+                imageWidth = imageWidth.intValue,
+                imageHeight = imageHeight.intValue,
+                cameraController = cameraController
             )
         }
 
-        detectionRoute(navController = navController)
-
-        composable(route = MainRoute.Verify.route) {
-
-        }
+        introduceRoute(navController = navController)
 
     }
 
-}
-
-fun NavBackStackEntry.isRouteFirstEntry(): Boolean {
-    return destination.route == MainRoute.Home.route
 }
 
 @Composable

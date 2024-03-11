@@ -1,14 +1,20 @@
 package com.biho.visageverify.presentation.navigation
 
+import androidx.navigation.NavBackStackEntry
+
 enum class MainRoute(val route: String) {
+    Splash("splash"),
     Home("home"),
-    Detect("detect"),
+    Introduce("introduce_main"),
     Verify("verify"),
 }
 
-enum class DetectRoute(val route: String) {
-    Register("register"),
-    Remember("remember"),
+enum class IntroduceRoute(val route: String) {
+    Introduce("introduce")
+}
+
+fun NavBackStackEntry.isRouteFirstEntry(): Boolean {
+    return destination.route == MainRoute.Home.route
 }
 
 fun MainRoute.withArgReceiver(placeholder: String): String {

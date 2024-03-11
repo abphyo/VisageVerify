@@ -6,17 +6,11 @@ import android.graphics.Bitmap
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavGraphBuilder
@@ -25,36 +19,37 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.biho.visageverify.domain.usecases.FaceDetectionUseCase
 import com.biho.visageverify.presentation.CameraImageAnalyzer
-import com.biho.visageverify.presentation.screens.DetectViewModel
+import com.biho.visageverify.presentation.screens.IntroduceViewModel
 import com.biho.visageverify.presentation.composables.sharedViewModel
-import com.biho.visageverify.presentation.screens.DetectionScreen
+import com.biho.visageverify.presentation.screens.DetectScreenState
+import com.biho.visageverify.presentation.screens.IntroduceContent
+import com.biho.visageverify.presentation.screens.IntroduceScreen
 import com.biho.visageverify.presentation.utils.LocalApplicationContext
 import com.google.mlkit.vision.face.Face
 import org.koin.compose.koinInject
 
-fun NavGraphBuilder.detectionRoute(navController: NavHostController) {
+fun NavGraphBuilder.introduceRoute(navController: NavHostController) {
 
     navigation(
-        route = MainRoute.Detect.route,
-        startDestination = DetectRoute.Register.route
+        route = MainRoute.Introduce.route,
+        startDestination = IntroduceRoute.Introduce.route
     ) {
 
-        composable(route = DetectRoute.Register.route) { entry ->
-
+        composable(route = IntroduceRoute.Introduce.route) { entry ->
             val onNavigateBackOnPermissionDenied = {
                 navController.popBackStack()
-                navController.navigate(MainRoute.Home.route)
+                navController.navigate(MainRoute.Splash.route)
             }
 
             val applicationContext = LocalApplicationContext.current
 
-            val sharedDetectViewModel =
-                entry.sharedViewModel<DetectViewModel>(navController = navController)
+            val sharedIntroduceViewModel =
+                entry.sharedViewModel<IntroduceViewModel>(navController = navController)
 
             val detector = koinInject<FaceDetectionUseCase>()
             val detectFacesPerFrame = detector::detectFacePerFrame
             val originalFrame = remember {
-                mutableStateOf(Bitmap.createBitmap(0, 0, Bitmap.Config.ARGB_8888))
+                mutableStateOf(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888))
             }
 
             val faces = remember { mutableStateListOf<Face>() }
@@ -90,40 +85,34 @@ fun NavGraphBuilder.detectionRoute(navController: NavHostController) {
                     onNavigateBackOnPermissionDenied()
             }
 
-            DetectionScreen(
-                screenState = sharedDetectViewModel.screenState.value,
-                loadingState = sharedDetectViewModel.loadingState.value,
-                croppedFace = sharedDetectViewModel.croppedBitmap.value,
-                faces = faces,
-                imageHeight = imageHeight.intValue,
-                imageWidth = imageWidth.intValue,
-                isRouteFirstEntry = entry.isRouteFirstEntry(),
-                onNavigateBack = {
-                    navController.navigateUp()
-                },
-                onCropImage = { rect ->
-                    sharedDetectViewModel.cropFaceFromFrame(originalFrame.value, rect)
-                },
-                onRememberImage = { name ->
-                    sharedDetectViewModel.rememberFace(name = name)
-                },
-                controller = cameraController
-            )
-        }
-
-        composable(route = DetectRoute.Remember.route) { entry ->
-
-            val sharedDetectViewModel =
-                entry.sharedViewModel<DetectViewModel>(navController = navController)
-            val scrollState = rememberScrollState()
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .scrollable(state = scrollState, orientation = Orientation.Vertical)
-            ) {
-
+            LaunchedEffect(key1 = sharedIntroduceViewModel.screenState) {
+                if (sharedIntroduceViewModel.screenState.value is DetectScreenState.Success)
+                    navController.popBackStack()
             }
+
+            IntroduceScreen(
+                isRouteFirstEntry = entry.isRouteFirstEntry(),
+                onNavigateBack = { navController.popBackStack() },
+                title = "Show me someone"
+            ) {
+                IntroduceContent(
+                    paddingValues = it,
+                    screenState = sharedIntroduceViewModel.screenState.value,
+                    loadingState = sharedIntroduceViewModel.loadingState.value,
+                    croppedFace = sharedIntroduceViewModel.croppedBitmap.value,
+                    faces = faces,
+                    imageHeight = imageHeight.intValue,
+                    imageWidth = imageWidth.intValue,
+                    onCropImage = { rect ->
+                        sharedIntroduceViewModel.cropFaceFromFrame(originalFrame.value, rect)
+                    },
+                    onRememberImage = { name ->
+                        sharedIntroduceViewModel.rememberFace(name = name)
+                    },
+                    controller = cameraController
+                )
+            }
+
         }
 
     }

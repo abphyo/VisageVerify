@@ -7,6 +7,7 @@ import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import com.biho.visageverify.presentation.utils.centerCrop
+import com.biho.visageverify.presentation.utils.rotateBitmap
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.face.Face
 
@@ -20,12 +21,14 @@ class CameraImageAnalyzer(
         // Limit detection per n frames
         image.image?.let {
             val bitmap = image.toBitmap()
-            val croppedBitmap = bitmap.centerCrop(300, 400)
+//            val croppedBitmap = bitmap.centerCrop(300, 400)
             val rotationDegrees = image.imageInfo.rotationDegrees
-            detectFacePerFrame(croppedBitmap, rotationDegrees).addOnSuccessListener { faces ->
+            val trueBitmap = bitmap.rotateBitmap(rotationDegrees.toFloat())
+            detectFacePerFrame(bitmap, rotationDegrees).addOnSuccessListener { faces ->
                 Log.d("DEBUG", "analyze: $faces")
-                onFaceDetected(faces, croppedBitmap, image.width, image.height)
+                onFaceDetected(faces, trueBitmap, trueBitmap.width, trueBitmap.height)
             }.addOnCompleteListener {
+                image.image?.close()
                 image.close()
             }
         }

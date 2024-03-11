@@ -8,8 +8,10 @@ import io.realm.kotlin.ext.query
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.runBlocking
 
 class RealmRepoImpl(
     private val realm: Realm,
@@ -20,20 +22,25 @@ class RealmRepoImpl(
         return try {
             realm.write {
                 copyToRealm(person.toRealm(), UpdatePolicy.ALL)
+                println("save person: $person")
+                Result.success(Unit)
             }
-            Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(Throwable(e.message))
         }
     }
 
     override suspend fun getPersons(): StateFlow<List<Person>> {
-        return realm.query<RealmPerson>().asFlow().map { results ->
+        val personFlow = realm.query<RealmPerson>().asFlow().map { results ->
+            println("saved person: $results")
             results.list.map { it.toDomain() }
-        }.stateIn(
+        }
+        return personFlow.stateIn(
             scope = ioScope,
             started = SharingStarted.WhileSubscribed(),
-            initialValue = emptyList()
+            initialValue = runBlocking {
+                personFlow.first()
+            }
         )
     }
 
