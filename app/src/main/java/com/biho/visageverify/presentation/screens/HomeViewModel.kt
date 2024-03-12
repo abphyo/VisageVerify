@@ -1,10 +1,8 @@
 package com.biho.visageverify.presentation.screens
 
 import android.graphics.Bitmap
-import androidx.compose.ui.graphics.toComposeRect
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.biho.visageverify.domain.usecases.GetPersonsUseCase
 import com.biho.visageverify.domain.usecases.ValidatePersonUseCase
 import com.biho.visageverify.presentation.utils.cropBitmapRec
 import com.google.mlkit.vision.face.Face
@@ -32,6 +30,12 @@ class HomeViewModel(
                     Pair(name, face)
                 }
             }
+        }
+    }
+
+    fun clearPersons() {
+        viewModelScope.launch {
+            _persons.update { emptyList() }
         }
     }
 

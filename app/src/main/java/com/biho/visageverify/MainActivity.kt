@@ -54,6 +54,9 @@ class MainActivity : ComponentActivity() {
                 }
                 Toast.makeText(this, "Permission request granted", Toast.LENGTH_LONG).show()
             } else {
+                lifecycleScope.launch {
+                    permissionChannel.send(UUID.randomUUID().toString())
+                }
                 Toast.makeText(this, "Permission request denied", Toast.LENGTH_LONG).show()
             }
         }
@@ -61,8 +64,14 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            if (!shouldShowRequestPermissionRationale(Manifest.permission.CAMERA))
-                requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+            when {
+                !shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) ->
+                    requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+                shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) ->
+                    lifecycleScope.launch {
+                        permissionGrantedChannel.send(UUID.randomUUID().toString())
+                    }
+            }
         }
         setContent {
             KoinContext {
@@ -110,6 +119,19 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        when (PackageManager.PERMISSION_GRANTED) {
+            ContextCompat.checkSelfPermission(
+                applicationContext,
+                Manifest.permission.CAMERA
+            ) -> lifecycleScope.launch {
+                permissionGrantedChannel.send(UUID.randomUUID().toString())
+            }
+            else -> { }
         }
     }
 }

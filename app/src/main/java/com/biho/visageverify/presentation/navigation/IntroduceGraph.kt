@@ -37,8 +37,8 @@ fun NavGraphBuilder.introduceRoute(navController: NavHostController) {
 
         composable(route = IntroduceRoute.Introduce.route) { entry ->
             val onNavigateBackOnPermissionDenied = {
-                navController.popBackStack()
                 navController.navigate(MainRoute.Splash.route)
+                navController.popBackStack()
             }
 
             val applicationContext = LocalApplicationContext.current
@@ -85,7 +85,7 @@ fun NavGraphBuilder.introduceRoute(navController: NavHostController) {
                     onNavigateBackOnPermissionDenied()
             }
 
-            LaunchedEffect(key1 = sharedIntroduceViewModel.screenState) {
+            LaunchedEffect(key1 = sharedIntroduceViewModel.screenState.value) {
                 if (sharedIntroduceViewModel.screenState.value is DetectScreenState.Success)
                     navController.popBackStack()
             }

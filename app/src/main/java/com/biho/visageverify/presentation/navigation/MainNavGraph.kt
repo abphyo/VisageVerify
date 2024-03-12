@@ -29,6 +29,9 @@ import com.biho.visageverify.presentation.screens.HomeScreen
 import com.biho.visageverify.presentation.screens.HomeViewModel
 import com.biho.visageverify.presentation.utils.LocalApplicationContext
 import com.biho.visageverify.presentation.utils.LocalPermissionChannel
+import com.biho.visageverify.presentation.utils.LocalPermissionGrantedChannel
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -48,21 +51,45 @@ fun MainNavGraph(navController: NavHostController) {
         }
 
         composable(route = MainRoute.Splash.route) {
-            val onNavigateHomeScreen = {
+            val popSplashScreen = {
                 navController.popBackStack()
                 navController.navigate(MainRoute.Home.route)
             }
-            AnimatedSplashScreen(popSplashScreen = onNavigateHomeScreen)
+            val lifecycle = LocalLifecycleOwner.current.lifecycle
+
+            val granted = LocalPermissionGrantedChannel.current
+
+            LaunchedEffect(key1 = lifecycle.currentState) {
+                delay(2500)
+                granted.consumeEach {
+                    popSplashScreen()
+                }
+            }
+            AnimatedSplashScreen()
         }
 
         composable(route = MainRoute.Home.route) { entry ->
+
+            val applicationContext = LocalApplicationContext.current
+
+            val detector = koinInject<FaceDetectionUseCase>()
+            val homeViewModel = koinViewModel<HomeViewModel>()
+            val detectFacesPerFrame = detector::detectFacePerFrame
+
+            val persons by homeViewModel.persons.collectAsState()
+
+            val imageWidth = remember { mutableIntStateOf(0) }
+            val imageHeight = remember { mutableIntStateOf(0) }
 
             val onNavigateToIntroduce = {
                 when (PackageManager.PERMISSION_GRANTED) {
                     ContextCompat.checkSelfPermission(
                         context,
                         Manifest.permission.CAMERA
-                    ) -> navController.navigate(MainRoute.Introduce.route)
+                    ) -> {
+                        homeViewModel.clearPersons()
+                        navController.navigate(MainRoute.Introduce.route)
+                    }
 
                     else -> lifecycleScope.launch {
                         permissionChannel.send(UUID.randomUUID().toString())
@@ -75,17 +102,6 @@ fun MainNavGraph(navController: NavHostController) {
                 navController.popBackStack()
                 navController.navigate(MainRoute.Splash.route)
             }
-
-            val applicationContext = LocalApplicationContext.current
-
-            val detector = koinInject<FaceDetectionUseCase>()
-            val homeViewModel = koinViewModel<HomeViewModel>()
-            val detectFacesPerFrame = detector::detectFacePerFrame
-
-            val persons by homeViewModel.persons.collectAsState()
-
-            val imageWidth = remember { mutableIntStateOf(0) }
-            val imageHeight = remember { mutableIntStateOf(0) }
 
             LaunchedEffect(key1 = LocalLifecycleOwner.current.lifecycle.currentState) {
                 if (ContextCompat.checkSelfPermission(

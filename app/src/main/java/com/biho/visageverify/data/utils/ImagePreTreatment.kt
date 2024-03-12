@@ -2,6 +2,8 @@ package com.biho.visageverify.data.utils
 
 import android.graphics.Bitmap
 import kotlin.math.ceil
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 fun Bitmap.bitmapToNV21ByteArray(): ByteArray {
     val argb = IntArray(this.width * this.height)

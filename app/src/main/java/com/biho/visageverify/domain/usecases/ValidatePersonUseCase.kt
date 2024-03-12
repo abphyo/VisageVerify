@@ -1,6 +1,9 @@
 package com.biho.visageverify.domain.usecases
 
 import android.graphics.Bitmap
+import android.util.Log
+import com.biho.visageverify.data.utils.cosineSim
+import com.biho.visageverify.data.utils.l2Norm
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -20,24 +23,21 @@ class ValidatePersonUseCase(
         return result
     }
 
-    private fun cosineSim(x1: FloatArray, x2: FloatArray): Float {
-        var dotProduct = 0.0f
-        var normA = 0.0f
-        var normB = 0.0f
-        for (i in x1.indices) {
-            dotProduct += x1[i] * x2[i]
-            normA += x1[i].pow(2)
-            normB += x2[i].pow(2)
-        }
-        return dotProduct / (sqrt(normA) * sqrt(normB))
-    }
-
     suspend operator fun invoke(croppedBitmap: Bitmap): String? {
         val likeness =
             calculateLikenessUseCase.interpretBitmap(bitmap = croppedBitmap) ?: emptyArray()
-        return getPersonsUseCase.invoke().value.maxByOrNull { person ->
-            cosineSim(x1 = likeness.flatten(), x2 = person.likeness.flatten())
-        }?.name
+        return getPersonsUseCase.invoke().value
+            .map { person ->
+                Pair(person.name, l2Norm(x1 = likeness.flatten(), x2 = person.likeness.flatten()))
+            }
+            .filter { it.second < 0.2f }
+            .minByOrNull { pair ->
+                // distance calculation between input face and saved faces
+                // maxBy for cosineSim method and minBy for l2Norm method
+                pair.second.also {
+                    Log.d("FACE", "invoke: ${pair.first} :$it")
+                }
+            }?.first
     }
 
 }

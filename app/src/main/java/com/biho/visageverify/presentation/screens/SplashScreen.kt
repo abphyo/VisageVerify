@@ -1,7 +1,5 @@
 package com.biho.visageverify.presentation.screens
 
-import android.Manifest
-import android.content.pm.PackageManager
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -23,39 +21,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
-import com.biho.visageverify.presentation.utils.LocalPermissionGrantedChannel
-import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.delay
 
 @Composable
-fun AnimatedSplashScreen(popSplashScreen: () -> Unit) {
-    val context = LocalContext.current
+fun AnimatedSplashScreen() {
     var startAnimation by remember { mutableStateOf(false) }
     val alphaAnim = animateFloatAsState(
         targetValue = if (startAnimation) 1f else 0f,
         animationSpec = tween(
-            durationMillis = 3000
+            durationMillis = 2000
         ),
         label = "splash screen animation"
     )
-    val granted = LocalPermissionGrantedChannel.current
 
     LaunchedEffect(key1 = Unit) {
         startAnimation = true
-        delay(4000)
-        when (PackageManager.PERMISSION_GRANTED) {
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.CAMERA
-            ) -> popSplashScreen()
-            else -> { }
-        }
-        granted.consumeEach {
-            popSplashScreen()
-        }
     }
     Splash(alpha = alphaAnim.value)
 }

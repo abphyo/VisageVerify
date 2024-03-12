@@ -51,12 +51,9 @@ fun DrawNameOverLay(pairs: List<Pair<String?, Face>>, imageWidth: Int, imageHeig
             if (!pair.first.isNullOrEmpty()) {
                 val boundingBox = pair.second.boundingBox.toComposeRect()
                 val topLeft = adjustPoint(PointF(boundingBox.topLeft.x, boundingBox.topLeft.y), imageWidth, imageHeight, screenWidth, screenHeight)
-                val size = adjustSize(boundingBox.size, imageWidth, imageHeight, screenWidth, screenHeight)
-
                 drawText(
                     textMeasurer = textMeasurer,
                     text = pair.first!!,
-                    size = size,
                     style = TextStyle(
                         color = Color.Yellow
                     ),
