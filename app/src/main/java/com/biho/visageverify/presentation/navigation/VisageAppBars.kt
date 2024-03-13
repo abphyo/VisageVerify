@@ -33,7 +33,6 @@ fun VisageAppBar(
                 title = text,
                 actions = actions,
                 navigationIcon = navigationIcon,
-                modifier = modifier.height(50.dp),
                 scrollBehavior = scrollBehavior,
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color.Transparent

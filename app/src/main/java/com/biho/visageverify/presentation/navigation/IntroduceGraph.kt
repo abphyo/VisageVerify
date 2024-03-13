@@ -41,6 +41,11 @@ fun NavGraphBuilder.introduceRoute(navController: NavHostController) {
                 navController.popBackStack()
             }
 
+            val onNavigateBack = {
+                navController.popBackStack()
+                navController.navigate(MainRoute.Home.route)
+            }
+
             val applicationContext = LocalApplicationContext.current
 
             val sharedIntroduceViewModel =
@@ -85,14 +90,9 @@ fun NavGraphBuilder.introduceRoute(navController: NavHostController) {
                     onNavigateBackOnPermissionDenied()
             }
 
-            LaunchedEffect(key1 = sharedIntroduceViewModel.screenState.value) {
-                if (sharedIntroduceViewModel.screenState.value is DetectScreenState.Success)
-                    navController.popBackStack()
-            }
-
             IntroduceScreen(
                 isRouteFirstEntry = entry.isRouteFirstEntry(),
-                onNavigateBack = { navController.popBackStack() },
+                onNavigateBack = onNavigateBack,
                 title = "Show me someone"
             ) {
                 IntroduceContent(
@@ -109,6 +109,8 @@ fun NavGraphBuilder.introduceRoute(navController: NavHostController) {
                     onRememberImage = { name ->
                         sharedIntroduceViewModel.rememberFace(name = name)
                     },
+                    onClearClick = sharedIntroduceViewModel::clearCropState,
+                    onFinish = onNavigateBack,
                     controller = cameraController
                 )
             }

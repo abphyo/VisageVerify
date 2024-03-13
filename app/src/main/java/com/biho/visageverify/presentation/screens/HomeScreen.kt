@@ -84,7 +84,7 @@ fun HomeScreen(
                 Button(
                     onClick = { onNavigateIntroduce() },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = ShapeDefaults.Medium
+                    shape = ShapeDefaults.ExtraLarge
                 ) {
                     Text(text = "Introduce someone")
                 }

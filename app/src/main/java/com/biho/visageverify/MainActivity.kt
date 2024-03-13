@@ -25,6 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.findNavController
 import com.biho.visageverify.presentation.navigation.MainNavGraph
 import com.biho.visageverify.presentation.composables.CameraPermissionTextProvider
 import com.biho.visageverify.presentation.composables.PermissionDialog

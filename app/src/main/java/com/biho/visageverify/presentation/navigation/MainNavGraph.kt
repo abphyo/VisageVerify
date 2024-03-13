@@ -60,7 +60,7 @@ fun MainNavGraph(navController: NavHostController) {
             val granted = LocalPermissionGrantedChannel.current
 
             LaunchedEffect(key1 = lifecycle.currentState) {
-                delay(2500)
+                delay(1000)
                 granted.consumeEach {
                     popSplashScreen()
                 }
@@ -88,7 +88,11 @@ fun MainNavGraph(navController: NavHostController) {
                         Manifest.permission.CAMERA
                     ) -> {
                         homeViewModel.clearPersons()
-                        navController.navigate(MainRoute.Introduce.route)
+                        navController.navigate(MainRoute.Introduce.route) {
+                            popUpTo(MainRoute.Home.route) {
+                                inclusive = true
+                            }
+                        }
                     }
 
                     else -> lifecycleScope.launch {
