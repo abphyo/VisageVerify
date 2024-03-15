@@ -69,6 +69,9 @@ androidx-datastore = { module = "androidx.datastore:datastore", version = "1.0.0
 # Realm
 io-realm = { module = "io.realm.kotlin:library-base", version.ref = "realm" }
 
+# Coin
+coin = { module = "io.coil-kt:coil-compose", version = "2.5.0" }
+
 [bundles]
 compose-bom = ["androidx-compose-ui", "androidx-compose-ui-graphics", "androidx-compose-ui-tooling-preview", "androidx-compose-material3"]
 koin = ["io-insert-koin-androidx-compose", "io-insert-koin-androidx-navigation", "io-insert-koin-android"]

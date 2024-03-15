@@ -1,11 +1,16 @@
 package com.biho.visageverify.presentation.utils
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.graphics.PointF
 import android.graphics.Rect
+import android.net.Uri
 import androidx.compose.ui.geometry.Size
+import coil.request.ImageRequest
 import com.google.mlkit.vision.face.Face
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 fun adjustPoint(point: PointF, imageWidth: Int, imageHeight: Int, screenWidth: Int, screenHeight: Int): PointF {
     val x = point.x / imageWidth * screenWidth

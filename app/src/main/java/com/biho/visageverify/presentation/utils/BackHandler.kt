@@ -1,4 +1,4 @@
-package com.biho.visageverify.presentation.composables
+package com.biho.visageverify.presentation.utils
 
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner

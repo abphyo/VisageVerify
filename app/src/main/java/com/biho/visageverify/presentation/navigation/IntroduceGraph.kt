@@ -114,8 +114,6 @@ fun NavGraphBuilder.introduceRoute(navController: NavHostController) {
                     controller = cameraController
                 )
             }
-
         }
-
     }
 }

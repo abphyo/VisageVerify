@@ -42,7 +42,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.biho.visageverify.presentation.composables.BackHandler
+import com.biho.visageverify.presentation.utils.BackHandler
 import com.biho.visageverify.presentation.composables.DrawFaceOverLay
 import com.biho.visageverify.presentation.composables.ErrorCard
 import com.biho.visageverify.presentation.composables.RememberCard

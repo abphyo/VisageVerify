@@ -95,4 +95,8 @@ dependencies {
 
     // realm
     implementation(libs.io.realm)
+
+    // coin
+    implementation(libs.coin)
+
 }

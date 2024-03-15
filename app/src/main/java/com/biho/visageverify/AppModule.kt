@@ -1,5 +1,6 @@
 package com.biho.visageverify
 
+import coil.ImageLoader
 import com.biho.visageverify.presentation.screens.HomeViewModel
 import com.biho.visageverify.presentation.screens.IntroduceViewModel
 import kotlinx.coroutines.CompletableJob
@@ -15,4 +16,5 @@ fun appModule() = module {
     viewModelOf(::MainViewModel)
     viewModelOf(::IntroduceViewModel)
     viewModelOf(::HomeViewModel)
+    single { ImageLoader(context = get()).newBuilder().build() }
 }
