@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
@@ -41,6 +42,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.biho.visageverify.presentation.composables.BackHandler
 import com.biho.visageverify.presentation.composables.DrawFaceOverLay
 import com.biho.visageverify.presentation.composables.ErrorCard
 import com.biho.visageverify.presentation.composables.RememberCard
@@ -93,6 +95,11 @@ fun IntroduceContent(
         name = textFieldValue
     }
 
+    BackHandler(isEnabled = true) {
+        if (screenState == DetectScreenState.Cropped) onClearClick()
+        else onFinish()
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize(),
@@ -119,66 +126,70 @@ fun IntroduceContent(
                 .padding(paddingValues),
             contentAlignment = Alignment.Center
         ) {
-            AnimatedContent(
-                targetState = screenState, label = "",
-                transitionSpec = {
-                    slideIntoContainer(
-                        towards = AnimatedContentTransitionScope.SlideDirection.Up,
-                        animationSpec = tween(
-                            durationMillis = 300,
-                            easing = EaseIn
-                        )
-                    ).togetherWith(
-                        slideOutOfContainer(
-                            towards = AnimatedContentTransitionScope.SlideDirection.Down,
-                            animationSpec = tween(
-                                durationMillis = 300,
-                                easing = EaseIn
+            LazyColumn {
+                item {
+                    AnimatedContent(
+                        targetState = screenState, label = "",
+                        transitionSpec = {
+                            slideIntoContainer(
+                                towards = AnimatedContentTransitionScope.SlideDirection.Up,
+                                animationSpec = tween(
+                                    durationMillis = 300,
+                                    easing = EaseIn
+                                )
+                            ).togetherWith(
+                                slideOutOfContainer(
+                                    towards = AnimatedContentTransitionScope.SlideDirection.Down,
+                                    animationSpec = tween(
+                                        durationMillis = 300,
+                                        easing = EaseIn
+                                    )
+                                )
                             )
-                        )
-                    )
-                }
-            ) { state ->
-                when (state) {
-                    is DetectScreenState.Cropped -> {
-                        RememberCard(
-                            croppedFace = croppedFace,
-                            name = name,
-                            nameTextFieldEmpty = nameTextFieldEmpty.value,
-                            onNameChanged = ::onNameChanged,
-                            validateTextField = ::validateTextField,
-                            onRememberImage = onRememberImage,
-                            rememberButtonEnabled = rememberButtonEnabled.value,
-                            loadingState = loadingState,
-                            onClearClick = onClearClick
-                        )
-                    }
-
-                    is DetectScreenState.Success -> {
-                        SuccessCard(
-                            description = {
-                                Text(
-                                    text = "${name.text} is remembered.",
-                                    style = MaterialTheme.typography.bodyLarge
+                        }
+                    ) { state ->
+                        when (state) {
+                            is DetectScreenState.Cropped -> {
+                                RememberCard(
+                                    croppedFace = croppedFace,
+                                    name = name,
+                                    nameTextFieldEmpty = nameTextFieldEmpty.value,
+                                    onNameChanged = ::onNameChanged,
+                                    validateTextField = ::validateTextField,
+                                    onRememberImage = onRememberImage,
+                                    rememberButtonEnabled = rememberButtonEnabled.value,
+                                    loadingState = loadingState,
+                                    onClearClick = onClearClick
                                 )
-                            },
-                            onDoneClick = onFinish
-                        )
-                    }
+                            }
 
-                    is DetectScreenState.Error -> {
-                        ErrorCard(
-                            message = {
-                                Text(
-                                    text = "recognization failed: ${state.message}",
-                                    style = MaterialTheme.typography.bodyLarge
+                            is DetectScreenState.Success -> {
+                                SuccessCard(
+                                    description = {
+                                        Text(
+                                            text = "${name.text} is remembered.",
+                                            style = MaterialTheme.typography.bodyLarge
+                                        )
+                                    },
+                                    onDoneClick = onFinish
                                 )
-                            },
-                            onDoneClick = onFinish
-                        )
-                    }
+                            }
 
-                    else -> {}
+                            is DetectScreenState.Error -> {
+                                ErrorCard(
+                                    message = {
+                                        Text(
+                                            text = "recognization failed: ${state.message}",
+                                            style = MaterialTheme.typography.bodyLarge
+                                        )
+                                    },
+                                    onDoneClick = onFinish
+                                )
+                            }
+
+                            else -> {}
+                        }
+                    }
                 }
             }
         }

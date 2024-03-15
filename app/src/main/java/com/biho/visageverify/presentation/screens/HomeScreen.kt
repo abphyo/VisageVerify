@@ -1,5 +1,8 @@
 package com.biho.visageverify.presentation.screens
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.Preview
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
@@ -26,12 +29,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.biho.visageverify.R
 import com.biho.visageverify.presentation.composables.DrawFaceOverLay
 import com.biho.visageverify.presentation.composables.DrawNameOverLay
 import com.biho.visageverify.presentation.navigation.BackOnlyTopAppBar
@@ -49,6 +56,17 @@ fun HomeScreen(
     cameraController: LifecycleCameraController
 ) {
     val lifecycle = LocalLifecycleOwner.current
+
+    val pickedImage = remember {
+        mutableStateOf<Uri?>(value = null)
+    }
+
+    val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+
+        }
+    )
 
     Scaffold(
         topBar = {
@@ -79,7 +97,7 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.spacedBy(32.dp)
             ) {
                 IconButton(onClick = { /*TODO*/ }) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                    Icon(painter = painterResource(id = R.drawable.add_a_photo_24px), contentDescription = null)
                 }
                 Button(
                     onClick = { onNavigateIntroduce() },
