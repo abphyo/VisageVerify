@@ -53,7 +53,6 @@ fun RememberCard(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .wrapContentHeight()
             .padding(
                 horizontal = 48.dp,
                 vertical = 48.dp
@@ -62,23 +61,18 @@ fun RememberCard(
         elevation = CardDefaults.elevatedCardElevation()
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
         ) {
             Icon(
                 imageVector = Icons.Default.Clear,
                 contentDescription = null,
-                modifier = Modifier
-                    .padding(top = 8.dp, end = 8.dp)
-                    .clickable { onClearClick() }
+                modifier = Modifier.padding(top = 8.dp, end = 8.dp).clickable { onClearClick() }
             )
         }
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .wrapContentHeight()
                 .padding(horizontal = 32.dp)
                 .padding(bottom = 16.dp),
             verticalArrangement = Arrangement.Top,
